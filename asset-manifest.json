@@ -1,0 +1,22 @@
+{
+  "files": {
+    "main.css": "/chesscom-tournament-analysis/static/css/main.15ea2870.chunk.css",
+    "main.js": "/chesscom-tournament-analysis/static/js/main.6f39a579.chunk.js",
+    "main.js.map": "/chesscom-tournament-analysis/static/js/main.6f39a579.chunk.js.map",
+    "runtime-main.js": "/chesscom-tournament-analysis/static/js/runtime-main.3fb4fc0e.js",
+    "runtime-main.js.map": "/chesscom-tournament-analysis/static/js/runtime-main.3fb4fc0e.js.map",
+    "static/js/2.993d780c.chunk.js": "/chesscom-tournament-analysis/static/js/2.993d780c.chunk.js",
+    "static/js/2.993d780c.chunk.js.map": "/chesscom-tournament-analysis/static/js/2.993d780c.chunk.js.map",
+    "static/js/3.3ab5bab3.chunk.js": "/chesscom-tournament-analysis/static/js/3.3ab5bab3.chunk.js",
+    "static/js/3.3ab5bab3.chunk.js.map": "/chesscom-tournament-analysis/static/js/3.3ab5bab3.chunk.js.map",
+    "index.html": "/chesscom-tournament-analysis/index.html",
+    "static/css/main.15ea2870.chunk.css.map": "/chesscom-tournament-analysis/static/css/main.15ea2870.chunk.css.map",
+    "static/js/2.993d780c.chunk.js.LICENSE.txt": "/chesscom-tournament-analysis/static/js/2.993d780c.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.3fb4fc0e.js",
+    "static/js/2.993d780c.chunk.js",
+    "static/css/main.15ea2870.chunk.css",
+    "static/js/main.6f39a579.chunk.js"
+  ]
+}
