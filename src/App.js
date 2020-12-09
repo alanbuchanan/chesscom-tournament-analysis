@@ -108,7 +108,12 @@ const Icon = ({ icon }) => {
 };
 const LinkIcon = ({ url }) => {
   return (
-    <a href={url} style={{ marginLeft: "10px" }} target="_blank">
+    <a
+      href={url}
+      style={{ marginLeft: "10px" }}
+      target="_blank"
+      rel="noreferrer"
+    >
       <FontAwesomeIcon icon={faExternalLinkAlt} style={{ cursor: "pointer" }} />
     </a>
   );
@@ -304,10 +309,10 @@ function App() {
 
       const gameWithMostMoves = data.games.reduce((acc, game) => {
         const pgnToObjCur = pgnToObject(
-          game.pgn.replace(/{\[%clk.+?(?= |\n)/gims, "")
+          game.pgn.replace(/\{\[%clk.+?(?= |\n)/gims, "")
         );
         const pgnToObjAcc = pgnToObject(
-          acc.pgn.replace(/{\[%clk.+?(?= |\n)/gims, "")
+          acc.pgn.replace(/\{\[%clk.+?(?= |\n)/gims, "")
         );
 
         const movesCountCur = _.replace(
@@ -329,10 +334,10 @@ function App() {
 
       const gameWithFewestMoves = data.games.reduce((acc, game) => {
         const pgnToObjCur = pgnToObject(
-          game.pgn.replace(/{\[%clk.+?(?= |\n)/gims, "")
+          game.pgn.replace(/\{\[%clk.+?(?= |\n)/gims, "")
         );
         const pgnToObjAcc = pgnToObject(
-          acc.pgn.replace(/{\[%clk.+?(?= |\n)/gims, "")
+          acc.pgn.replace(/\{\[%clk.+?(?= |\n)/gims, "")
         );
 
         const movesCountCur = _.replace(
