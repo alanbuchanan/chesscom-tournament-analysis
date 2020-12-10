@@ -4,25 +4,33 @@ import { pgnToObject } from "../utils/helperMethods";
 export const getGameWithFewestMoves = (games) => {
   const gameWithFewestMoves = games.reduce((acc, game) => {
     const pgnToObjCur = pgnToObject(
-      game.pgn.replace(/\{\[%clk.+?(?= |\n)/gims, "")
+      game.pgn
+        .replace(/\{\[%clk.+?(?= |\n)/gims, "")
+        .replace(/ 1-0/gims, "")
+        .replace(/ 0-1/gims, "")
+        .replace(/ 1\/2-1\/2/gims, "")
     );
     const pgnToObjAcc = pgnToObject(
-      acc.pgn.replace(/\{\[%clk.+?(?= |\n)/gims, "")
+      acc.pgn
+        .replace(/\{\[%clk.+?(?= |\n)/gims, "")
+        .replace(/ 1-0/gims, "")
+        .replace(/ 0-1/gims, "")
+        .replace(/ 1\/2-1\/2/gims, "")
     );
 
     const movesCountCur = _.replace(
-      _.nth(Object.keys(pgnToObjCur.Moves), -2),
+      _.last(Object.keys(pgnToObjCur.Moves)),
       /\./g,
       ""
     );
 
     const movesCountAcc = _.replace(
-      _.nth(Object.keys(pgnToObjAcc.Moves), -2),
+      _.last(Object.keys(pgnToObjAcc.Moves)),
       /\./g,
       ""
     );
 
-    return movesCountCur < movesCountAcc ? game : acc;
+    return Number(movesCountCur) < Number(movesCountAcc) ? game : acc;
   }, games[0]);
 
   return gameWithFewestMoves;

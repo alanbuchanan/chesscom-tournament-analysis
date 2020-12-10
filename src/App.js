@@ -51,6 +51,7 @@ function App() {
   const getData = async (evt) => {
     evt.preventDefault();
     setLoading(true);
+    setError(false);
 
     // Take every after the last backslash. This is the relevant part of the URL.
     const slug = userInput.replace(/(.*\/)*/, "");
@@ -133,7 +134,7 @@ function App() {
                 <p>{winner}</p>
               </Section>
             )}
-            {_.get(mostCommonOpening, "opening") > 0 && (
+            {_.get(mostCommonOpening, "count") > 0 && (
               <Section>
                 <IconAndTitle>
                   <Icon icon={faChessPawn} />

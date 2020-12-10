@@ -55,9 +55,12 @@ export const Section = styled.section`
 `;
 
 export const Input = styled.input`
-  width: 100%;
+  width: 90%;
   border: none;
   margin: 10px 0;
+  @media (max-width: 720px) {
+    width: 100%;
+  }
 `;
 
 export const Button = styled.button`

@@ -57,5 +57,6 @@ export const getMostCommonOpening = (games) => {
   const parsedOpenings = parseOpenings(_.compact(openings));
   const mostCommonOpeningsObj = _.countBy(parsedOpenings);
   const mostCommonOpening = retrieveMostCommonOpening(mostCommonOpeningsObj);
+
   return mostCommonOpening;
 };
