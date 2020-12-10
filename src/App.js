@@ -11,189 +11,29 @@ import {
   faWalking,
   faFlagCheckered,
   faSpinner,
-  faExternalLinkAlt,
 } from "@fortawesome/free-solid-svg-icons";
-import styled, { keyframes } from "styled-components";
 
-const green = "#6E9C47";
+import {
+  Container,
+  Panel,
+  Results,
+  H1,
+  H2,
+  IconAndTitle,
+  Section,
+  Input,
+  Button,
+  LoadingContainer,
+  ErrorMessage,
+} from "./styles";
+import { getMostCommonOpening } from "./parsers/mostCommonOpening";
+import { getBiggestUpset } from "./parsers/biggestUpset";
+import { getWinner } from "./parsers/winner";
+import { getResultTypes } from "./parsers/resultTypes";
+import { getGameWithMostMoves } from "./parsers/mostMovesGame";
+import { getGameWithFewestMoves } from "./parsers/fewestMovesGame";
 
-const Container = styled.main`
-  display: flex;
-  justify-content: center;
-  color: #eee;
-  background-color: #000;
-`;
-
-const Panel = styled.div`
-  text-align: center;
-  background-color: #444;
-  margin: 30px 0;
-  padding: 20px;
-`;
-
-const Results = styled.div`
-  margin-top: 70px;
-`;
-
-const H1 = styled.h1`
-  font-family: "Fjalla One", sans-serif;
-  text-transform: uppercase;
-  font-size: 40px;
-  margin-bottom: 40px;
-`;
-
-const H2 = styled.h2`
-  font-family: "Fjalla One", sans-serif;
-  text-transform: uppercase;
-`;
-
-const IconAndTitle = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 20px;
-  font-size: 30px;
-`;
-
-const Section = styled.section`
-  margin-top: 30px;
-  margin-bottom: 60px;
-`;
-
-const Input = styled.input`
-  width: 100%;
-  border: none;
-  margin: 10px 0;
-`;
-
-const Button = styled.button`
-  font-family: "Fjalla One", sans-serif;
-  text-transform: uppercase;
-  border: none;
-  background-color: ${green};
-  color: #eee;
-  font-size: 15px;
-  border-radius: 4px;
-  border-bottom: 3px solid #4f773b;
-  margin-top: 10px;
-  padding: 5px 10px;
-  outline: none;
-  cursor: pointer;
-`;
-
-const spin = keyframes`
-  from {
-      transform:rotate(0deg);
-  }
-  to {
-      transform:rotate(360deg);
-  }
-`;
-
-const LoadingContainer = styled.div`
-  animation-name: ${spin};
-  animation-duration: 1000ms;
-  animation-iteration-count: infinite;
-  animation-timing-function: linear;
-  margin-top: 20px;
-`;
-const Icon = ({ icon }) => {
-  return (
-    <FontAwesomeIcon
-      icon={icon}
-      color={green}
-      style={{ marginRight: "10px" }}
-    />
-  );
-};
-const LinkIcon = ({ url }) => {
-  return (
-    <a
-      href={url}
-      style={{ marginLeft: "10px" }}
-      target="_blank"
-      rel="noreferrer"
-    >
-      <FontAwesomeIcon icon={faExternalLinkAlt} style={{ cursor: "pointer" }} />
-    </a>
-  );
-};
-const openingTermsMilestones = [
-  "Opening",
-  "Defense",
-  "Game",
-  "Accepted",
-  "Declined",
-];
-
-const removeAfterIfExists = (opening, milestones) => {
-  return milestones.reduce((acc, milestone) => {
-    if (acc.includes(milestone)) {
-      return acc.substring(0, acc.indexOf(milestone) + milestone.length);
-    } else {
-      return acc;
-    }
-  }, opening);
-};
-
-const getMostCommonOpening = (mostCommonOpeningsObj) => {
-  return _.reduce(
-    mostCommonOpeningsObj,
-    (acc, value, key) => {
-      if (value > acc.count) {
-        return {
-          opening: key,
-          count: value,
-        };
-      } else {
-        return acc;
-      }
-    },
-    { opening: "", count: 0 }
-  );
-};
-
-const parseOpenings = (openings) => {
-  return openings.map((opening) => {
-    const stripped = opening
-      .replace("https://www.chess.com/openings/", "")
-      .replace("-", " ");
-
-    const removedAfterMilestones = removeAfterIfExists(
-      stripped,
-      openingTermsMilestones
-    );
-    return removedAfterMilestones;
-  });
-};
-
-const movesToObject = (str) => {
-  const onlyMoves = str.split(/\n\n/g)[1];
-  const splitBySpace = onlyMoves.split("  ");
-  const obj = splitBySpace.reduce((acc, cur) => {
-    const [moveNumber, move] = cur.split(" ");
-    acc[moveNumber] = move;
-    return acc;
-  }, {});
-  return obj;
-};
-
-const pgnToObject = (pgn) => {
-  const splitFeatures = pgn.match(/\[.*?]/gm);
-  const featuresToObject = splitFeatures.reduce((acc, feature) => {
-    const stripped = feature.replace(/[\[\]\"]/g, "");
-
-    const splitF = stripped.split(/ (.+)/);
-    acc[splitF[0]] = splitF[1];
-    return acc;
-  }, {});
-
-  const featuresToObjectWithMoves = {
-    ...featuresToObject,
-    Moves: movesToObject(pgn),
-  };
-  return featuresToObjectWithMoves;
-};
+import { Icon, LinkIcon } from "./utils/utilityComponents";
 
 function App() {
   const [data, setData] = useState();
@@ -211,13 +51,17 @@ function App() {
   const getData = async (evt) => {
     evt.preventDefault();
     setLoading(true);
+
+    // Take every after the last backslash. This is the relevant part of the URL.
     const slug = userInput.replace(/(.*\/)*/, "");
+
     try {
       const initialData = await axios.get(
         `https://api.chess.com/pub/tournament/${slug}`
       );
       const roundData = await axios.get(initialData.data.rounds[0]);
 
+      // Data can be returned in two different ways; handle each case here.
       if (roundData.data.games) {
         setData(roundData.data);
       } else if (roundData.data.groups) {
@@ -227,6 +71,7 @@ function App() {
         throw new Error();
       }
     } catch (err) {
+      // This will trigger an error message to be shown indicating the input may be incorrect.
       setError(true);
     } finally {
       setLoading(false);
@@ -234,134 +79,28 @@ function App() {
   };
 
   useEffect(() => {
+    // This runs when data is successfully retrieved.
+    // Get and set data for the information that displays underneath the input field.
     if (data) {
-      const openings = data.games.map((game) => {
-        return game.eco;
-      });
-      console.log(
-        "🚀 ~ file: App.js ~ line 231 ~ openings ~ openings",
-        openings
-      );
-
-      const parsedOpenings = parseOpenings(_.compact(openings));
-      const mostCommonOpeningsObj = _.countBy(parsedOpenings);
-      const mostCommonOpening = getMostCommonOpening(mostCommonOpeningsObj);
+      const mostCommonOpening = getMostCommonOpening(data.games);
       setMostCommonOpening(mostCommonOpening);
 
-      const biggestUpset = data.games.reduce((acc, game) => {
-        const winningRating =
-          game.white.result === "win"
-            ? game.white.rating
-            : game.black.result === "win"
-            ? game.black.rating
-            : null;
-
-        if (!winningRating) return acc;
-
-        const losingRating =
-          game.white.result === "win"
-            ? game.black.rating
-            : game.black.result === "win"
-            ? game.white.rating
-            : null;
-
-        const winningRatingExisting =
-          acc.white.result === "win"
-            ? acc.white.rating
-            : acc.black.result === "win"
-            ? acc.black.rating
-            : null;
-        const losingRatingExisting =
-          acc.white.result === "win"
-            ? acc.black.rating
-            : acc.black.result === "win"
-            ? acc.white.rating
-            : null;
-
-        const gap = losingRating - winningRating;
-
-        const gapExisting = losingRatingExisting - winningRatingExisting;
-
-        return gap > gapExisting ? game : acc;
-      }, data.games[0]);
+      const biggestUpset = getBiggestUpset(data.games);
       setBiggestUpset(biggestUpset);
 
-      const winner = data.players.find((player) => {
-        if (_.get(player, "is_winner")) {
-          return player.is_winner;
-        } else {
-          return player.place_finish === 1;
-        }
-      }).username;
+      const winner = getWinner(data.players);
       setWinner(winner);
 
-      const gameOutcomes = data.games.reduce(
-        (acc, game) => {
-          acc[game.black.result] += 1;
-          acc[game.white.result] += 1;
-          return acc;
-        },
-        { draw: 0, win: 0, timeout: 0, resigned: 0, checkmated: 0 }
-      );
-      setWinningOutcomes(
-        _.pick(gameOutcomes, ["checkmated", "timeout", "resigned"])
-      );
+      const resultTypes = getResultTypes(data.games);
+      setWinningOutcomes(resultTypes);
 
-      const gameWithMostMoves = data.games.reduce((acc, game) => {
-        const pgnToObjCur = pgnToObject(
-          game.pgn.replace(/\{\[%clk.+?(?= |\n)/gims, "")
-        );
-        const pgnToObjAcc = pgnToObject(
-          acc.pgn.replace(/\{\[%clk.+?(?= |\n)/gims, "")
-        );
-
-        const movesCountCur = _.replace(
-          _.nth(Object.keys(pgnToObjCur.Moves), -2),
-          /\./g,
-          ""
-        );
-
-        const movesCountAcc = _.replace(
-          _.nth(Object.keys(pgnToObjAcc.Moves), -2),
-          /\./g,
-          ""
-        );
-
-        return movesCountCur > movesCountAcc ? game : acc;
-      }, data.games[0]);
-
+      const gameWithMostMoves = getGameWithMostMoves(data.games);
       setMostMovesGame(gameWithMostMoves);
 
-      const gameWithFewestMoves = data.games.reduce((acc, game) => {
-        const pgnToObjCur = pgnToObject(
-          game.pgn.replace(/\{\[%clk.+?(?= |\n)/gims, "")
-        );
-        const pgnToObjAcc = pgnToObject(
-          acc.pgn.replace(/\{\[%clk.+?(?= |\n)/gims, "")
-        );
-
-        const movesCountCur = _.replace(
-          _.nth(Object.keys(pgnToObjCur.Moves), -2),
-          /\./g,
-          ""
-        );
-
-        const movesCountAcc = _.replace(
-          _.nth(Object.keys(pgnToObjAcc.Moves), -2),
-          /\./g,
-          ""
-        );
-
-        return movesCountCur < movesCountAcc ? game : acc;
-      }, data.games[0]);
-
+      const gameWithFewestMoves = getGameWithFewestMoves(data.games);
       setFewestMovesGame(gameWithFewestMoves);
     }
   }, [data]);
-
-  if (error) {
-    return <div>Sorry, something went wrong. Please try again later.</div>;
-  }
 
   return (
     <Container>
@@ -374,7 +113,12 @@ function App() {
           <Button type="submit">See Stats</Button>
         </form>
 
-        {loading ? (
+        {error ? (
+          <ErrorMessage>
+            Sorry, no data could be found for that tournament. Please
+            double-check the tournament URL you entered.
+          </ErrorMessage>
+        ) : loading ? (
           <LoadingContainer>
             <FontAwesomeIcon icon={faSpinner} color="rgba(255,255,255,0.3)" />
           </LoadingContainer>

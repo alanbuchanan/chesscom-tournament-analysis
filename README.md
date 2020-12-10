@@ -6,6 +6,8 @@ This webapp uses the chess.com public API, specifically the `GET /tournaments` e
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+Deployed at: https://alanbuchanan.github.io/chesscom-tournament-analysis/
+
 ## Available Scripts
 
 In the project directory, you can run:
